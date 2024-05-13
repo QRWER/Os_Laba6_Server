@@ -1,0 +1,84 @@
+#include "Server.h"
+#include <cstdlib>
+#include <ctime>
+#include <vector>
+#include <string>
+using namespace System;
+using namespace System::Windows::Forms;
+using namespace System::Net;
+using namespace System::Net::Sockets;
+using namespace System::Threading;
+using namespace System::Text;
+using namespace System::Collections::Generic;
+
+std::vector<std::string> foodPot = {"Суп", "Мясо", "Бульон"};
+
+void FormThread()
+{
+	Application::SetCompatibleTextRenderingDefault(false);
+	Application::EnableVisualStyles();
+	Laba6Server::Server form;
+	Application::Run(% form);
+}
+
+void PovarFunction() {
+	foodPot = { "Суп", "Мясо", "Бульон" };
+}
+
+[STAThreadAttribute]
+int main(array<String^>^ args) {
+	srand(time(NULL));
+    Thread^ FThread = gcnew Thread(gcnew ThreadStart(&FormThread));	
+    FThread->Start();
+	try
+	{
+		// Создаем IP-адрес и порт для сервера
+		IPAddress^ ipAddress = IPAddress::Parse("127.0.0.1");
+		int port = 8080;
+
+		// Создаем IPEndPoint для сервера
+		IPEndPoint^ endPoint = gcnew IPEndPoint(ipAddress, port);
+
+		// Создаем сокет
+		Socket^ serverSocket = gcnew Socket(AddressFamily::InterNetwork, SocketType::Stream, ProtocolType::Tcp);
+
+		// Привязываем сокет к IPEndPoint
+		serverSocket->Bind(endPoint);
+
+		serverSocket->Listen(100);
+
+		Console::WriteLine("Сервер запущен. Ожидание подключений...");
+
+		while (true)
+		{
+			try {
+				// Принимаем входящее подключение
+				Socket^ clientSocket = serverSocket->Accept();
+				Console::WriteLine("Клиент подключился.");
+
+				array<Byte>^ answerBuffer = gcnew array<Byte>(1024);
+				int bytesRead = clientSocket->Receive(answerBuffer);
+				String^ answer = System::Text::Encoding::UTF8->GetString(answerBuffer, 0, bytesRead);
+				if (!foodPot.size()) {
+					Thread^ PovarThread = gcnew Thread(gcnew ThreadStart(&PovarFunction));
+					PovarThread->Start();
+					PovarThread->Join();
+				}
+				int random = rand() % foodPot.size();
+				String^ food = gcnew String(foodPot[random].c_str());
+				foodPot.erase(foodPot.cbegin() + random);
+				array<Byte>^ buffer = Encoding::UTF8->GetBytes(food);
+				clientSocket->Send(buffer);
+				Console::WriteLine("Клиент отключился.");
+			}
+			catch (Exception^ e)
+			{
+				Console::WriteLine("Ошибка: " + e->Message);
+			}
+		}
+	}
+	catch (Exception^ e)
+	{
+		Console::WriteLine("Ошибка: " + e->Message);
+	}
+}
