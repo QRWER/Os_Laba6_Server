@@ -3,9 +3,11 @@
 namespace Laba6Server {
 	
 	using namespace System;
+	using namespace System::Text;
 	using namespace System::Net;
 	using namespace System::Net::Sockets;
 	using namespace System::Diagnostics;
+	using namespace System::IO;
 
 	/// <summary>
 	/// Сводка для Server
@@ -114,7 +116,7 @@ namespace Laba6Server {
 			try
 			{
 				// Путь к исполняемому файлу (программе)
-				String^ exePath = "C:\\Users\\mum50\\source\\repos\\Laba6_Client\\x64\\Debug\\Laba6_Client.exe";
+				String^ exePath = "C:\\QRWER\\Os_Laba6_Client\\x64\\Debug\\Laba6_Client.exe";
 				// Создаем процесс
 				Process^ myProcess = gcnew Process();
 				myProcess->StartInfo->FileName = exePath;
@@ -124,6 +126,7 @@ namespace Laba6Server {
 			catch (Exception^ e)
 			{
 				Console::WriteLine("Ошибка: " + e->Message);
+				//sw->WriteLine("Ошибка: " + e->Message);
 			}
 		}
 	}
