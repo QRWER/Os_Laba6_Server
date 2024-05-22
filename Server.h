@@ -15,6 +15,15 @@ namespace Laba6Server {
 	public ref class Server : public System::Windows::Forms::Form
 	{
 	public:
+		void WriteLog(String^ str) {
+			FileStream^ fstream = gcnew FileStream("Logs.txt", FileMode::Append, FileAccess::Write);
+			StreamWriter^ sw = gcnew StreamWriter(fstream);
+			DateTime now = DateTime::Now;
+			String^ date = now.ToString("yyyy-MM-dd HH:mm:ss");
+			sw->WriteLine("[" + date + "] " + str);
+			sw->Close();
+		}
+	public:
 		Server(void)
 		{
 			InitializeComponent();
@@ -116,12 +125,13 @@ namespace Laba6Server {
 			try
 			{
 				// Путь к исполняемому файлу (программе)
-				String^ exePath = "C:\\QRWER\\Os_Laba6_Client\\x64\\Debug\\Laba6_Client.exe";
+				String^ exePath = "C:\\Users\\mum50\\source\\repos\\Laba6_Client\\x64\\Debug\\Laba6_Client.exe";
 				// Создаем процесс
 				Process^ myProcess = gcnew Process();
 				myProcess->StartInfo->FileName = exePath;
 				// Запускаем процесс
 				myProcess->Start();
+				WriteLog("Процесс №" + (i + 1) + " запустился");
 			}
 			catch (Exception^ e)
 			{
